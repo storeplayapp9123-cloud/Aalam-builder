@@ -33,6 +33,12 @@ public class BuildPipeline {
         steps.add(new PendingStep("Aligning and signing"));
     }
 
+    public List<String> stepNames() {
+        List<String> names = new ArrayList<>();
+        for (BuildStep s : steps) names.add(s.name());
+        return names;
+    }
+
     public void run(File projectDir, File outDir, Listener listener) {
         BuildContext ctx = new BuildContext(projectDir, outDir, listener);
         int total = steps.size();
