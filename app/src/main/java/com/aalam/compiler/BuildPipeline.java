@@ -25,9 +25,10 @@ public class BuildPipeline {
 
     public BuildPipeline() {
         steps.add(new PrepareStep());
+        // Abhi ECJ 2nd hai taaki test ho sake. AAPT2 (R.java) aane par ECJ resources ke baad jayega.
+        steps.add(new CompileJavaStep());
         steps.add(new PendingStep("Compiling resources (AAPT2)"));
         steps.add(new PendingStep("Linking resources (AAPT2)"));
-        steps.add(new PendingStep("Compiling Java (ECJ)"));
         steps.add(new PendingStep("Dexing (D8)"));
         steps.add(new PendingStep("Packaging APK"));
         steps.add(new PendingStep("Aligning and signing"));
@@ -39,8 +40,9 @@ public class BuildPipeline {
         return names;
     }
 
-    public void run(File projectDir, File outDir, Listener listener) {
+    public void run(File projectDir, File outDir, File androidJar, Listener listener) {
         BuildContext ctx = new BuildContext(projectDir, outDir, listener);
+        ctx.androidJar = androidJar;
         int total = steps.size();
 
         try {
