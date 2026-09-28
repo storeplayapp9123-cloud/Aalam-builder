@@ -1,0 +1,26 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.aalam.compiler'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.aalam.compiler'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // ecj.jar, d8 jars yahan app/libs me rakhenge (agle steps me)
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
