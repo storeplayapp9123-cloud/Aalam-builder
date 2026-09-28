@@ -7,6 +7,8 @@ public class BuildContext {
     public final File projectDir;   // user ka project
     public final File outDir;       // output folder
     public final File workDir;      // temporary files (outDir/work)
+    public File androidJar;         // android.jar (compile ke liye)
+    public File classesDir;         // ECJ ke .class files yahan jayenge
     public File apk;                // last step isko set karega
 
     private final BuildPipeline.Listener listener;
