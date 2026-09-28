@@ -14,6 +14,9 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,7 +103,7 @@ public class MainActivity extends Activity {
         stepsScroll.addView(steps);
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
-        sp.topMargin = dp(10);
+        sp.topMargin = dp(16);
         left.addView(stepsScroll, sp);
 
         buildBtn = new Button(this);
@@ -163,9 +166,17 @@ public class MainActivity extends Activity {
                 try (FileOutputStream out = new FileOutputStream(new File(project, "AndroidManifest.xml"))) {
                     out.write("<manifest package=\"com.sample.app\"/>".getBytes("UTF-8"));
                 }
+                File pkg = new File(project, "src/com/sample/app");
+                pkg.mkdirs();
+                try (FileOutputStream out = new FileOutputStream(new File(pkg, "Hello.java"))) {
+                    out.write(("package com.sample.app;\n"
+                            + "public class Hello {\n"
+                            + "    public static String greet() { return \"Hello from Aalam\"; }\n"
+                            + "}\n").getBytes("UTF-8"));
+                }
                 File outDir = new File(getFilesDir(), "out");
 
-                pipeline.run(project, outDir, new BuildPipeline.Listener() {
+                pipeline.run(project, outDir, prepareAndroidJar(), new BuildPipeline.Listener() {
                     @Override
                     public void onStepStart(int i, int total, String name) {
                         currentStep = i - 1;
@@ -208,6 +219,19 @@ public class MainActivity extends Activity {
                 });
             }
         }).start();
+    }
+
+    /** assets/android.jar ko files folder me copy karta hai (sirf pehli baar). */
+    private File prepareAndroidJar() throws IOException {
+        File dst = new File(getFilesDir(), "android.jar");
+        if (dst.isFile() && dst.length() > 0) return dst;
+        try (InputStream in = getAssets().open("android.jar");
+             OutputStream out = new FileOutputStream(dst)) {
+            byte[] buf = new byte[64 * 1024];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+        }
+        return dst;
     }
 
     private void styleStep(int i, int state) {
