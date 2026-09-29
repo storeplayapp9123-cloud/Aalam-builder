@@ -162,21 +162,35 @@ public class MainActivity extends Activity {
         new Thread(() -> {
             try {
                 File project = new File(getFilesDir(), "sample");
-                new File(project, "src").mkdirs();
+                new File(project, "src/com/sample/app").mkdirs();
+                File resValues = new File(project, "res/values");
+                resValues.mkdirs();
+
                 try (FileOutputStream out = new FileOutputStream(new File(project, "AndroidManifest.xml"))) {
-                    out.write("<manifest package=\"com.sample.app\"/>".getBytes("UTF-8"));
+                    out.write((""
+                            + "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                            + "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n"
+                            + "    package=\"com.sample.app\">\n"
+                            + "    <application android:label=\"@string/app_name\" />\n"
+                            + "</manifest>\n").getBytes("UTF-8"));
                 }
-                File pkg = new File(project, "src/com/sample/app");
-                pkg.mkdirs();
-                try (FileOutputStream out = new FileOutputStream(new File(pkg, "Hello.java"))) {
+                try (FileOutputStream out = new FileOutputStream(new File(resValues, "strings.xml"))) {
+                    out.write((""
+                            + "<resources>\n"
+                            + "    <string name=\"app_name\">Sample App</string>\n"
+                            + "</resources>\n").getBytes("UTF-8"));
+                }
+                try (FileOutputStream out = new FileOutputStream(
+                        new File(project, "src/com/sample/app/Hello.java"))) {
                     out.write(("package com.sample.app;\n"
                             + "public class Hello {\n"
                             + "    public static String greet() { return \"Hello from Aalam\"; }\n"
                             + "}\n").getBytes("UTF-8"));
                 }
+
                 File outDir = new File(getFilesDir(), "out");
 
-                pipeline.run(project, outDir, prepareAndroidJar(), new BuildPipeline.Listener() {
+                pipeline.run(project, outDir, prepareAndroidJar(), aapt2Path(), new BuildPipeline.Listener() {
                     @Override
                     public void onStepStart(int i, int total, String name) {
                         currentStep = i - 1;
@@ -232,6 +246,15 @@ public class MainActivity extends Activity {
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
         }
         return dst;
+    }
+
+    /** aapt2 binary jniLibs se yahan milega (app ke nativeLibraryDir me). */
+    private File aapt2Path() throws IOException {
+        File f = new File(getApplicationInfo().nativeLibraryDir, "libaapt2.so");
+        if (!f.isFile()) {
+            throw new IOException("aapt2 nahi mila (jniLibs me libaapt2.so daalna baaki hai): " + f);
+        }
+        return f;
     }
 
     private void styleStep(int i, int state) {
