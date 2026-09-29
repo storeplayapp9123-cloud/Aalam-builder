@@ -52,7 +52,6 @@ public class CompileJavaStep implements BuildStep {
                 ok = new Main(o, e, false).compile(args.toArray(new String[0]));
             }
         } catch (LinkageError le) {
-            // ECJ ka koi class Android par nahi mila
             throw new Exception("ECJ Android par chal nahi paya: " + le);
         }
 
