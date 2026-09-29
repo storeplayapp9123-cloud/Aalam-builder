@@ -14,24 +14,16 @@ android {
         versionName '0.1'
     }
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-}
-
-// android.jar ko assets me copy karta hai (ECJ ko compile ke liye chahiye)
-tasks.register('copyAndroidJar', Copy) {
-    def jar = new File(android.sdkDirectory, 'platforms/android-34/android.jar')
-    doFirst {
-        if (!jar.isFile()) throw new GradleException('android.jar nahi mila: ' + jar)
-    }
-    from(jar)
-    into('src/main/assets')
-}
-
-tasks.named('preBuild') {
-    dependsOn 'copyAndroidJar'
 }
 
 dependencies {
